@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./jspdf.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container my-5 text-center">
+        <button class="btn btn-danger w-100" onclick="traer()">Acceder</button>
+        <div class="mt-5">
+            <table class="table" id="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Item Code</th>
+                    <th scope="col">Item Name</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Discount</th>
+                  </tr>
+                </thead>
+                <tbody id="contenido">
+                  
+                </tbody>
+              </table>
+              <p id="parrafo"></p>
+                <p id="parrafo2"></p>
+                <p id="parrafo3"></p>
+                <button onclick="genPDF()">Generar PDF</button>
+        </div>
+    </div>
+    <script>
+        let contenido = document.querySelector("#contenido")
+            
+        function traer(){ //De esta manera podemos obtener los datos del archivo datos.json
+            fetch('datos.json') //Ahora recibimos los datos
+                .then( res => res.json()) //Convertimos los datos a formato json
+                .then( datos => { //Trabajamos con dichos datos obtenidos del archivo .json
+                    //console.log(datos)
+                    tabla(datos)
+                })
+        }
+
+        
+        function tabla(datos){
+            contenido.innerHTML = ""
+            for(let valor of datos){
+                //console.log(valor);
+                contenido.innerHTML += `
+                <tr>
+                    <th scope="row">${valor.code}</th>
+                    <td>${valor.name}</td>
+                    <td id="price_${valor.code}">${valor.price}</td>
+                    <td><input type="number" id="input_${valor.code}" onchange="cambiar(this)"></input></td>
+                    <td id="total_${valor.code}">${valor.price*valor.total}</td>
+                    <td id="discount_${valor.code}">${valor.total*0.5}</td>
+                </tr>
+                `
+            }
+            
+        }
+        function cambiar(e){
+            console.log(e.id)
+            let id = e.id.split("_")[1]
+            let price = parseFloat(document.querySelector(`#price_${id}`).innerHTML);
+            //console.log(typeof(variable));
+            document.querySelector(`#total_${id}`).innerHTML = parseFloat(e.value)*price;
+            console.log(parseFloat(e.value)*price);
+            let total = 0;
+            let celdasPrecio =document.querySelectorAll('td + td + td ') //Sumar los elementos de la quinta columna
+            console.log(celdasPrecio);
+            let totaldiscount = 0;
+            let totalonlydiscount = 0;
+            let celdasPrecioDiscount = document.querySelectorAll('td + td + td + td') //Sumar los elementos de la sexta columna
+            console.log(celdasPrecioDiscount);
+            for (let i=1; i<celdasPrecio.length-1; i=i+3){
+                total += parseFloat(celdasPrecio[i].firstChild.data);
+                console.log("El valor de total es: "+total);
+            }
+            if(total >30000) {
+                
+                for (let i=1; i<celdasPrecioDiscount.length; i=i+2){
+                    let totalaux = parseFloat(document.querySelector(`#total_${celdasPrecioDiscount[i].id.split("_")[1]}`).innerHTML);
+                    document.querySelector(`#discount_${celdasPrecioDiscount[i].id.split("_")[1]}`).innerHTML = totalaux*0.05;
+                    console.log(celdasPrecioDiscount)
+                }
+                for(let j = 1; j<celdasPrecioDiscount.length-1; j=j+2)
+                {
+                    totaldiscount += parseFloat(celdasPrecioDiscount[j].firstChild.data);
+                    console.log("Valor",parseFloat(celdasPrecioDiscount[j].firstChild.data));
+                    console.log("El valor de totaldiscount es: "+totaldiscount);
+                }
+                totalonlydiscount = total - totaldiscount;
+            }
+            else {
+                totaldiscount = 0;
+                for (let i=1; i<celdasPrecioDiscount.length; i=i+2){
+                    let totalaux = parseFloat(document.querySelector(`#total_${celdasPrecioDiscount[i].id.split("_")[1]}`).innerHTML);
+                    document.querySelector(`#discount_${celdasPrecioDiscount[i].id.split("_")[1]}`).innerHTML = 0;
+                    console.log(celdasPrecioDiscount)
+                }
+            }
+            document.querySelector('#parrafo').innerHTML = `Total Amount: ${total}`;
+            document.querySelector('#parrafo2').innerHTML = `Total With Discount: ${totalonlydiscount}`;
+            
+            document.querySelector('#parrafo3').innerHTML = `Total Discount: ${totaldiscount}`;
+            
+
+            
+        }
+        function genPDF() {
+            let doc = new jsPDF(); //Aqui creamos el objeto para poder utilizar jsPDF
+            doc.autoTable({
+                html: '#table'
+            })
+            doc.save('prueba.pdf');
+        }
+    </script>
+    
+</body>
+</html>

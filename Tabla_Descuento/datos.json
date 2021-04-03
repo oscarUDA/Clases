@@ -1,0 +1,30 @@
+[
+    {
+        "code" : "BD5184",
+        "name" : "DISCO DE FRENO",
+        "price" : 2258.29,
+        "total" : 0.00,
+        "discount" : 0.00
+    },
+    {
+        "code" : "11115-16082",
+        "name" : "JUNTA DE CULATA",
+        "price" : 339.18,
+        "total" : 0.00,
+        "discount" : 0.00
+    },
+    {
+        "code" : "11115-1062",
+        "name" : "JUNTA DE CULATA",
+        "price" : 1847.22,
+        "total" : 0.00,
+        "discount" : 0.00
+    },
+    {
+        "code" : "22211-35520",
+        "name" : "VALVULA DE ADMISION",
+        "price" : 106.34,
+        "total" : 0.00,
+        "discount" : 0.00
+    }
+]
